@@ -33,17 +33,25 @@ import javax.swing.JToolBar;
 
 
 
+
+
+
+
 import java.awt.BorderLayout;
 import java.awt.ScrollPane;
 import java.awt.Panel;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JMenuItem;
 
-import staff.Db;
-import staff.DbConfig;
+
+
+///import staff.DbConfig;
+//import staff.Db;
 import NffvSample.NffvApplication;
 
 import com.github.sarxos.webcam.Webcam;
@@ -51,8 +59,11 @@ import com.github.sarxos.webcam.WebcamPanel;
 
 
 
-public class Main {
-
+public class Main {	
+	//Db db = new Db();
+	//Connection cn = db.connect("mysql");
+	Db db = new Db();
+	Connection cn = db.connect("javadb" ,"localhost","staffdb", "admin", "admin");
 	private JFrame frmStaffRegistration;
 	private JTextField fullnametxt;
 	private JTextField compnantxt;
@@ -64,7 +75,7 @@ public class Main {
 	private JTextField dateregtxt;
 	private JTextArea addresstxt;
 	private JComboBox gendercmb;
-	private Connection cn;
+	//private Connection cn;
 	private JTable table;
 	private JPanel panel;
 	private WebcamPanel panel_1;
@@ -179,6 +190,7 @@ public class Main {
 		JButton btnNewButton = new JButton("Take/Upload photo");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				/**
 				BufferedImage image = webcam.getImage();
 
 				// save image to PNG file
@@ -200,6 +212,7 @@ panel2.add( label, BorderLayout.CENTER );
 
 frmStaffRegistration.getContentPane().add(panel2);
 
+		*/
 
 			}
 		});
@@ -248,8 +261,7 @@ frmStaffRegistration.getContentPane().add(panel2);
 		JButton btnSearch = new JButton("Search");
 		btnSearch.setBounds(497, 397, 89, 23);
 		frmStaffRegistration.getContentPane().add(btnSearch);
-		Db db = new Db("mysql" ,"localhost","staffdb", "root", "");
-		cn = db.connect("mysql" ,"localhost","staffdb", "root", "");
+		
 		///Object[][] data = db.getData("staff");
 		
 		//table.setModel(new DefaultTableModel(data,new String[] {"ID", "Fullname", "Company No","Designaton","Contact No", "Email", "Date Register"}));
@@ -258,8 +270,15 @@ frmStaffRegistration.getContentPane().add(panel2);
 		lblDateOfRegister.setBounds(401, 11, 173, 14);
 		frmStaffRegistration.getContentPane().add(lblDateOfRegister);
 		
+		
+		Date dNow = new Date( );
+	    SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
+	    String cdate = ft.format(dNow);
+
+	      
 		dateregtxt = new JTextField();
 		dateregtxt.setBounds(401, 39, 200, 20);
+		dateregtxt.setText(cdate);
 		frmStaffRegistration.getContentPane().add(dateregtxt);
 		dateregtxt.setColumns(10);
 		
@@ -298,7 +317,29 @@ frmStaffRegistration.getContentPane().add(panel2);
 		JButton btnFingerPrint = new JButton("Finger Print");
 		btnFingerPrint.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				NffvApplication nffv = new NffvApplication();
+				String fullname = fullnametxt.getText();
+				String companyno = compnantxt.getText();
+				String designation = designationtxt.getText();
+				String mobileno = contacttxt.getText();
+				String gender = gendercmb.getSelectedItem().toString();
+				String dob = dobtxt.getText();
+				String email = emailtxt.getText();
+				String address = addresstxt.getText();
+				String datereg = dateregtxt.getText();
+				
+				Staff staff = new Staff();
+				staff.setFullname(fullname);
+				staff.setCompanyno(companyno);
+				staff.setDesignation(designation);
+				staff.setMobileno(mobileno);
+				staff.setGender(gender);
+				staff.setDob(dob);
+				staff.setEmail(email);
+				staff.setAddress(address);
+				staff.setDatereg(datereg);
+				
+				
+				NffvApplication nffv = new NffvApplication(staff);
 				nffv.main(null);
 				
 			}
@@ -319,8 +360,8 @@ frmStaffRegistration.getContentPane().add(panel2);
 		mntmDbSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//frmEbahnIptvMiddleware.setVisible(false);
-				DbConfig dbconfig = new DbConfig();
-				dbconfig.setVisible(true);
+				///DbConfig dbconfig = new DbConfig();
+				///dbconfig.setVisible(true);
 			}
 		});
 		mnSettings.add(mntmDbSettings);
