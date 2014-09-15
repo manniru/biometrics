@@ -10,15 +10,21 @@ import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 
 import java.awt.Color;
 
@@ -26,27 +32,32 @@ import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.UIManager;
 import javax.swing.JToolBar;
 
-
-
-
-
-
-
-
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.ItemSelectable;
 import java.awt.ScrollPane;
 import java.awt.Panel;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JMenuItem;
+
 
 
 
@@ -57,9 +68,12 @@ import NffvSample.NffvApplication;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 
+import javax.swing.border.TitledBorder;
 
 
-public class Main {	
+
+public class Main {
+	private TableRowSorter<MyTableModel> sorter;
 	//Db db = new Db();
 	//Connection cn = db.connect("mysql");
 	Db db = new Db();
@@ -71,22 +85,22 @@ public class Main {
 	private JTextField contacttxt;
 	private JTextField dobtxt;
 	private JTextField emailtxt;
-	private JTextField textField_6;
+	private JTextField filterText;
 	private JTextField dateregtxt;
 	private JTextArea addresstxt;
 	private JComboBox gendercmb;
 	//private Connection cn;
 	private JTable table;
 	private JPanel panel;
-	private WebcamPanel panel_1;
 	Webcam webcam;
-	private JPanel panel2;
+	private JLabel label;
+	int columnfilter = 0;
+	private JComboBox filtercmb;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) {		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -190,33 +204,41 @@ public class Main {
 		JButton btnNewButton = new JButton("Take/Upload photo");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				/**
-				BufferedImage image = webcam.getImage();
+				String coyno = compnantxt.getText().toString();
+				JFileChooser chooser = new JFileChooser();
+			    FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif");
+			    chooser.setFileFilter(filter);
+			    //chooser.setCurrentDirectory(dir);
+			    int returnVal = chooser.showOpenDialog(frmStaffRegistration);
+			    if(returnVal == JFileChooser.APPROVE_OPTION) {
+			    	File file = chooser.getSelectedFile();
+			    	String src = file.getPath();
+			    	//String dest = "D:\\git\\biometrics\\StaffReg\\photos\\baby.jpg";
+			    	String loc = "photos/"+coyno+".jpg";
+			    	File dest = new File(loc);
+			    	try{
+			    		 
+			    		BufferedImage originalImage = ImageIO.read(file);
+			    		int type = originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+			     
+			    		BufferedImage resizeImageJpg = resizeImage(originalImage, type);
+			    		ImageIO.write(resizeImageJpg, "jpg", dest); 
 
-				// save image to PNG file
-				try {
-					ImageIO.write(image, "PNG", new File("photos/test.png"));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				
-				
-panel_1.setVisible(false);
+			     
+			    	}catch(IOException e2){
+			    		System.out.println(e2.getMessage());
+			    	}
+			     
+			    	
 
-JLabel label = new JLabel("", new ImageIcon("photos/test.png"), JLabel.CENTER);
-
-//JPanel panel = new JPanel(new BorderLayout());
-panel2.add( label, BorderLayout.CENTER );
-
-frmStaffRegistration.getContentPane().add(panel2);
-
-		*/
-
+			    	
+			    	label.setIcon(new ImageIcon(loc));
+			    	///label.setIcon(new ImageIcon(Main.class.getResource("/resources/fingers.jpg")));
+			       System.out.println("You chose to open this file: " + chooser.getSelectedFile().getName());
+			    }
 			}
 		});
-		btnNewButton.setBounds(679, 210, 123, 23);
+		btnNewButton.setBounds(661, 210, 152, 23);
 		frmStaffRegistration.getContentPane().add(btnNewButton);
 		
 		JButton btnSaveRecord = new JButton("Save Record");
@@ -242,21 +264,72 @@ frmStaffRegistration.getContentPane().add(panel2);
 				finger.main(null);
 			}
 		});
-		btnNewButton_1.setBounds(679, 266, 134, 57);
+		btnNewButton_1.setBounds(661, 266, 152, 32);
 		frmStaffRegistration.getContentPane().add(btnNewButton_1);
 		
 		JLabel lblEarchBy = new JLabel("Search By:");
 		lblEarchBy.setBounds(10, 397, 107, 14);
 		frmStaffRegistration.getContentPane().add(lblEarchBy);
 		
-		JComboBox comboBox_1 = new JComboBox();
-		comboBox_1.setBounds(127, 397, 134, 23);
-		frmStaffRegistration.getContentPane().add(comboBox_1);
+		filtercmb = new JComboBox();
+		filtercmb.setModel(new DefaultComboBoxModel(new String[] {"id", "companyno", "fullname", "gender", "phoneno", "designation", "address"}));
+		filtercmb.setBounds(127, 397, 134, 23);
 		
-		textField_6 = new JTextField();
-		textField_6.setBounds(337, 397, 146, 23);
-		frmStaffRegistration.getContentPane().add(textField_6);
-		textField_6.setColumns(10);
+		ItemListener itemListener = new ItemListener() {
+		      public void itemStateChanged(ItemEvent itemEvent) {
+		        int state = itemEvent.getStateChange();
+		       // System.out.println((state == ItemEvent.SELECTED) ? "Selected" : "Deselected");
+		        //System.out.println("Item: " + itemEvent.getItem());
+		        ItemSelectable is = itemEvent.getItemSelectable();
+		        //System.out.println(", Selected: " + is);
+		        
+		        columnfilter = filtercmb.getSelectedIndex();
+		        
+		      }
+		    };
+		    filtercmb.addItemListener(itemListener);
+		    
+		frmStaffRegistration.getContentPane().add(filtercmb);
+		
+		filterText = new JTextField();
+		filterText.setBounds(337, 397, 146, 23);
+		filterText.getDocument().addDocumentListener(
+                new DocumentListener() {
+                    public void changedUpdate(DocumentEvent e) {
+                        newFilter();
+                    }
+                    public void insertUpdate(DocumentEvent e) {
+                        newFilter();
+                    }
+                    public void removeUpdate(DocumentEvent e) {
+                        newFilter();
+                    }
+                });
+		/**
+		filterText.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+			    //warn();
+			  }
+			  public void removeUpdate(DocumentEvent e) {
+			    //warn();
+			  }
+			  public void insertUpdate(DocumentEvent e) {
+				  String search = filterText.getText().toString();
+				  System.out.println(search);
+			   // warn();
+			  }
+
+			  public void warn() {
+			     if (Integer.parseInt(filterText.getText())<=0){
+			       JOptionPane.showMessageDialog(null,
+			          "Error: Please enter number bigger than 0", "Error Massage",
+			          JOptionPane.ERROR_MESSAGE);
+			     }
+			  }
+			});
+		 */
+		frmStaffRegistration.getContentPane().add(filterText);
+		filterText.setColumns(10);
 		
 		JButton btnSearch = new JButton("Search");
 		btnSearch.setBounds(497, 397, 89, 23);
@@ -288,6 +361,17 @@ frmStaffRegistration.getContentPane().add(panel2);
 		
 		table = new JTable();
 		
+		MyTableModel model = new MyTableModel();
+        sorter = new TableRowSorter<MyTableModel>(model);
+        table = new JTable(model);
+        table.setRowSorter(sorter);
+        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+        table.setFillsViewportHeight(true);
+
+        //For the purposes of this example, better to have a single
+        //selection.
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 		//Db db = new Db("mysql" ,"localhost","staffdb", "admin", "admin");
 		//cn = db.connect("mysql" ,"localhost","staffdb", "admin", "admin");
 		//String[] fields = {"id","name","age"};
@@ -295,24 +379,43 @@ frmStaffRegistration.getContentPane().add(panel2);
 		
 		Object[][] oo = db.getData("staff");
 		//System.out.println(oo.length);
-		
+		/**
 		table.setModel(new DefaultTableModel(oo,
-			new String[] {
-				"ID", "Staff Name"
-			}
+			new String[] { "ID", "Company No","Fullname", "Gender","Phone No","Designation", "Address" }
 		));
+		*/
+		
+		
+		/**
+		table.getSelectionModel().addListSelectionListener(
+                new ListSelectionListener() {
+                    public void valueChanged(ListSelectionEvent event) {
+                        int viewRow = table.getSelectedRow();
+                        if (viewRow < 0) {
+                            //Selection got filtered away.
+                           // statusText.setText("");
+                        } else {
+                            int modelRow = 
+                                table.convertRowIndexToModel(viewRow);
+                            String st = String.format("Selected Row in view: %d. " +"Selected Row in model: %d.",viewRow, modelRow);
+                            System.out.println(st);
+                        }
+                    }
+                }
+        );
+		*/
+		
+		
+		
+		
+		
+		
+		
+		
 		scrollPane.setViewportView(table);
 		
 		//panel = new JPanel();
 		webcam = Webcam.getDefault();
-
-		panel_1 = new WebcamPanel(webcam);
-		panel_1.setFillArea(true);
-		panel_1.setBounds(678, 11, 135, 167);
-		frmStaffRegistration.getContentPane().add(panel_1);
-		
-		panel2 = new JPanel();
-		panel_1.add(panel2);
 		
 		JButton btnFingerPrint = new JButton("Finger Print");
 		btnFingerPrint.addActionListener(new ActionListener() {
@@ -347,6 +450,17 @@ frmStaffRegistration.getContentPane().add(panel2);
 		btnFingerPrint.setBounds(401, 80, 200, 41);
 		frmStaffRegistration.getContentPane().add(btnFingerPrint);
 		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Employee Photo", TitledBorder.CENTER, TitledBorder.TOP, null, null));
+		panel_1.setBounds(661, 11, 152, 192);
+		frmStaffRegistration.getContentPane().add(panel_1);
+		panel_1.setLayout(null);
+		
+		label = new JLabel("");
+		label.setBounds(10, 22, 132, 159);
+		panel_1.add(label);
+		label.setIcon(new ImageIcon("photos/photo.jpg"));
+		
 		JMenuBar menuBar = new JMenuBar();
 		frmStaffRegistration.setJMenuBar(menuBar);
 		
@@ -369,5 +483,89 @@ frmStaffRegistration.getContentPane().add(panel2);
 		menuBar.add(mnHelp);
 	}
 	
+	private static void copyFileUsingJava7Files(File source, File dest) throws IOException {
+		Files.copy(source.toPath(), dest.toPath());
+		}
 	
+	private static BufferedImage resizeImage(BufferedImage originalImage, int type){
+		BufferedImage resizedImage = new BufferedImage(150, 170, type);
+		Graphics2D g = resizedImage.createGraphics();
+		g.drawImage(originalImage, 0, 0, 150, 170, null);
+		g.dispose();
+	 
+		return resizedImage;
+	    }
+	
+	private void newFilter() {
+        RowFilter<MyTableModel, Object> rf = null;
+        //If current expression doesn't parse, don't update.
+        try { rf = RowFilter.regexFilter(filterText.getText(), columnfilter);
+        } catch (java.util.regex.PatternSyntaxException e) { return; }
+        sorter.setRowFilter(rf);
+    }
+	
+	class MyTableModel extends AbstractTableModel {
+        private String[] columnNames = {"ID", "Fullname", "Company No","Designaton","Contact No", "Email", "Date Register"};
+        
+        Object[][] data = db.getData("staff");
+       
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        public int getRowCount() {
+            return data.length;
+        }
+
+        public String getColumnName(int col) {
+            return columnNames[col];
+        }
+
+        public Object getValueAt(int row, int col) {
+            return data[row][col];
+        }
+
+
+        public Class getColumnClass(int c) {
+            return getValueAt(0, c).getClass();
+        }
+
+        /*
+         * Don't need to implement this method unless your table's
+         * editable.
+         */
+        public boolean isCellEditable(int row, int col) {
+            //Note that the data/cell address is constant,
+            //no matter where the cell appears onscreen.
+            if (col < 2) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        /*
+         * Don't need to implement this method unless your table's
+         * data can change.
+         */
+        public void setValueAt(Object value, int row, int col) {
+        	System.out.println(row+"=="+col+"=="+value);
+
+        }
+
+        private void printDebugData() {
+            int numRows = getRowCount();
+            int numCols = getColumnCount();
+
+            for (int i=0; i < numRows; i++) {
+                System.out.print("    row " + i + ":");
+                for (int j=0; j < numCols; j++) {
+                    System.out.print("  " + data[i][j]);
+                }
+                System.out.println();
+            }
+            System.out.println("--------------------------");
+        }
+    }
+
 }

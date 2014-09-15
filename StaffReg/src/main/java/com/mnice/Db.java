@@ -1,5 +1,6 @@
 package com.mnice;
 
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,6 +10,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.sql.ResultSetMetaData;
+
+import org.apache.derby.drda.NetworkServerControl;
 
 public class Db {
 	static Connection conn;
@@ -20,21 +23,52 @@ public class Db {
     Statement s;
     ResultSet rs = null;
     Connection cn2 = connect("mysql");
+    static Db db = new Db();
+	static Connection cn = db.cn();
    
 
 	public static void main(String[] args) {
-		Db db = new Db();
-		Connection cn = db.connect("javadb" ,"localhost","staffdb", "admin", "admin");
-		///db.drop("STAFF");
-		
+		///db.populate("STAFF");
+
+	}
+	
+	public void test2() {
 		///db.create("STAFF");
+		//db.addStaff(db.staff());
+		///db.populate("STAFF");
+		/**
+		try {
+			ResultSet rs = cn.createStatement().executeQuery("SELECT * FROM ADMIN.STAFF"); //rs.next();
+			while(rs.next()) {
+				System.out.println(rs.getInt(1));
+			}
+		} catch (Exception e) { System.out.println(e); }
+		*/
+		//
+		//
+		
+		///
+		
+		///
 		
 
 		
-		///db.addStaff(db.staff());
+		//
+		/**
+		Object oo[][] = db.getData("STAFF");
+		//System.out.println(oo.length);
+		for(int i=0;i<5;i++) {
+			///try { System.out.println(oo[i][4].toString()); } catch(Exception e) {}
+			
+		}
+		for(Object[] st : oo) {
+			//System.out.println(oo[1][1]);
+		}
 		
+		//System.out.println(oo[0][1]);
 		
-		System.out.println(db.records("STAFF"));
+		*/
+		//System.out.println(db.records("STAFF"));
 	}
 	
 	public Staff staff() {
@@ -59,6 +93,39 @@ public class Db {
 		staff.setAddress(address);
 		staff.setDatereg(datereg);
 		return staff;
+	}
+	public void populate(String table) {
+		db.drop("STAFF");
+		db.create("STAFF");
+		String[] names = {"Auwal One","Sani Two","Salisu There","Rabiu Four","Khamisu Five"};
+		for(String name: names) {
+			String username = "auwal";
+			String password = "awual";
+			String fullname = name;
+			String companyno = "123456";
+			String designation = "Programmer";
+			String mobileno = "6010202020";
+			String gender = "Male";
+			String dob = "1980-07-06";
+			String email = "auwal@gmail.com";
+			String address = "Bukit Jalil";
+			String datereg = "2014-09-14";
+			
+			Staff staff = new Staff();
+			staff.setUsername(username);
+			staff.setPassword(password);
+			staff.setFullname(fullname);
+			staff.setCompanyno(companyno);
+			staff.setDesignation(designation);
+			staff.setMobileno(mobileno);
+			staff.setGender(gender);
+			staff.setDob(dob);
+			staff.setEmail(email);
+			staff.setAddress(address);
+			staff.setDatereg(datereg);
+			db.addStaff(staff);
+		}
+		//db.drop("STAFF");
 	}
 	
 	public void test1() {
@@ -131,14 +198,12 @@ public class Db {
 
 	public Db() {
 		/**
-		Properties props = new Properties();
-		props.put("user", "admin");
-        props.put("password", "admin");
-        try {
-			conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
-			System.out.println("Connected to and created database " + dbName);
-		} catch (SQLException e) { System.out.println(e); }
-        */
+		try {
+			NetworkServerControl server = new NetworkServerControl(InetAddress.getByName("localhost"), 1527);
+			server.start(null);
+			System.out.println("Derby Server Started!");
+		} catch (Exception e) { e.printStackTrace(); }
+		*/
 	}
 	
 	public Connection connect(String dbtype, String dbhost, String dbname, String dbuser, String dbpass) {
@@ -153,7 +218,7 @@ public class Db {
 	
 	public void create(String table) {
 		try { s.execute("drop table "+table); } catch(Exception e1) { }
-		try { s = conn.createStatement();
+		try { s = cn.createStatement();
 		
 		String sql = "CREATE TABLE ADMIN."+table+"\r\n" + 
 				"(ID INT NOT NULL GENERATED ALWAYS AS IDENTITY,\r\n" + 
@@ -177,25 +242,36 @@ public class Db {
 
 	public void addStaff(Staff staff) {
 		try {
-		PreparedStatement ps = cn().prepareStatement("INSERT INTO ADMIN.STAFF(fullname, companyno, designation, mobileno, gender, dob, email, address, datereg) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-	      	ps.setString(1, staff.getFullname());
-	      	ps.setString(2, staff.getCompanyno());
-	      	ps.setString(3, staff.getDesignation());
-	      	ps.setString(4, staff.getMobileno());
-	      	ps.setString(5, staff.getGender());
-	      	ps.setString(6, staff.getDob());
-	      	ps.setString(7, staff.getEmail());
-	      	ps.setString(8, staff.getAddress());
-	      	ps.setString(9, staff.getDatereg());
+		PreparedStatement ps = cn().prepareStatement("INSERT INTO ADMIN.STAFF(username, password, fullname, companyno, designation, mobileno, gender, dob, email, address, datereg) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			ps.setString(1, staff.getUsername());
+			ps.setString(2, staff.getPassword());
+	      	ps.setString(3, staff.getFullname());
+	      	ps.setString(4, staff.getCompanyno());
+	      	ps.setString(5, staff.getDesignation());
+	      	ps.setString(6, staff.getMobileno());
+	      	ps.setString(7, staff.getGender());
+	      	ps.setString(8, staff.getDob());
+	      	ps.setString(9, staff.getEmail());
+	      	ps.setString(10, staff.getAddress());
+	      	ps.setString(11, staff.getDatereg());
 	        ps.executeUpdate();
 	        System.out.println("Staff Records Saved!");
 	        ps.close();
+	        cn().close();
 		} catch(Exception e) { System.out.println(e); }
 		
 	}
 
 	private Connection cn() {
+		Connection con = null;
+		try {
+		con = DriverManager.getConnection(this.protocol + this.dbName + ";create=true", "admin","admin");
+		} catch(Exception e) { System.out.println(e); }
+		return con;
+	}
+	
+	private Connection cn2() {
 		Connection con = null;
 		try {
 		con = DriverManager.getConnection(this.protocol + this.dbName + ";create=true", "admin","admin");
@@ -269,16 +345,16 @@ public class Db {
 	
 		try {
 		Statement st2 = cn2.createStatement();
-		ResultSet r3 = st2.executeQuery("SELECT * FROM "+tb);
+		ResultSet r3 = st2.executeQuery("SELECT id, companyno, fullname, gender, mobileno, designation, address FROM "+tb);
 		ResultSetMetaData metaData = r3.getMetaData();
 		int colCount = metaData.getColumnCount();
 		ArrayList rows = new ArrayList();
 		Object[] row = null;
 		while (r3.next()) {
-		row = new Object[colCount];
-		for (int a = 0; a < colCount; a++) {
-		row[a] = r3.getObject(a + 1);
-		}
+			row = new Object[colCount];
+			for (int a = 0; a < colCount; a++) {
+				row[a] = r3.getObject(a + 1);
+			}
 		rows.add(row);
 		}
 		oo = (Object[][])rows.toArray(new Object[0][0]);
@@ -289,9 +365,7 @@ public class Db {
 	}
 	
 	public void drop(String table) {
-		try {
-			cn2.createStatement().executeUpdate("DROP TABLE "+table);
-        } catch (SQLException e) {System.out.println(e); }
+		try { cn2.createStatement().executeUpdate("DROP TABLE "+table);} catch (SQLException e) {}
 	}
 
 }

@@ -1,1 +1,0 @@
-CALL mvn clean package

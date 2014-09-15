@@ -81,8 +81,11 @@ public class Fingers extends JPanel implements ActionListener, ListSelectionList
 	private JLabel lblDateRegister;
 	private JTextField dateregtxt;
 	ImageIcon icon = new ImageIcon("D:/git/biometrics/StaffReg/src/main/java/resources/fingers.jpg");
+	String companyno = "";
+	private JLabel label;
 	
 	public Fingers(ScannerModule[] scanners, String database, String password, final Staff staff){
+		companyno = staff.getCompanyno();
 		System.out.println("Loading scanner modules");
 		for (ScannerModule modules : scanners) {	
 			System.out.println(modules.getName());
@@ -193,6 +196,16 @@ public class Fingers extends JPanel implements ActionListener, ListSelectionList
 		panel.setBorder(new TitledBorder(null, "Employee Photo", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		panel.setBounds(10, 369, 181, 188);
 		add(panel);
+		panel.setLayout(null);
+		
+		label = new JLabel("");
+		label.setBounds(0, 11, 171, 166);
+		
+		label = new JLabel("");
+		label.setBounds(10, 22, 132, 159);
+		label.setIcon(new ImageIcon("photos/"+companyno+".jpg"));
+		
+		panel.add(label);
 		
 		panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Employee Information", TitledBorder.CENTER, TitledBorder.TOP, null, Color.BLACK));
@@ -432,7 +445,7 @@ public class Fingers extends JPanel implements ActionListener, ListSelectionList
 	public ImageIcon capture(int no) {
 		ImageIcon imageicon = null;
 		try{
-			String username = "user1";
+			String username = companyno;
 			curruser = engine.enroll(TIMEOUT);
 			System.out.println(engine.getEngineStatus());
 		
