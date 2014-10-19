@@ -84,7 +84,7 @@
                 <shadedClassifierName>shaded</shadedClassifierName>
                 <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>staff.Main</mainClass>
+                        <mainClass>com.mnice.Main</mainClass>
                     </transformer>
                 </transformers>
             </configuration>
@@ -106,7 +106,7 @@
                         <outfile>${project.build.directory}/Staffs.exe</outfile>
                         <downloadUrl>http://java.com/download</downloadUrl>
                         <classPath>
-                            <mainClass>staff.Main</mainClass>
+                            <mainClass>com.mnice.Main</mainClass>
                             <preCp>anything</preCp>
                         </classPath>
                         <icon>application.ico</icon>

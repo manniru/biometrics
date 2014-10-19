@@ -11,7 +11,7 @@ import com.neurotechnology.Nffv.ScannerModule;
 
 public class NffvApplication extends JFrame implements PanelContainer{
 	ScannerModule[] scanners;
-	String dbname = "db";
+	String dbname = "db1";
 	String dbpass = "";
 	
 	PanelContainer owner;

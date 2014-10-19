@@ -1,10 +1,10 @@
 ----------------------------------------------------------------
-Mon Sep 15 16:33:30 SGT 2014:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0148-7872-007e-000000abbbf8 
-on database directory D:\git\biometrics\StaffReg\JavaDB with class loader sun.misc.Launcher$AppClassLoader@1d16e93 
+Sun Oct 19 09:48:02 SGT 2014:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0149-2617-01e0-000000d08750 
+on database directory D:\git\biometrics\StaffReg\JavaDB with class loader sun.misc.Launcher$AppClassLoader@1abab88 
 Loaded from file:/C:/Users/Mannir/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
 java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_20-b26
+java.runtime.version=1.7.0_71-b14
 user.dir=D:\git\biometrics\StaffReg
 os.name=Windows 7
 os.arch=x86
